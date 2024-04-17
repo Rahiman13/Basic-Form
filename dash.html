@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .actionButtons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .actionButton {
+            border-radius: 2em;
+            background-color: blueviolet;
+            color: white;
+            font-weight: bold;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 16px;
+            padding-right: 16px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="bg-white text-right mt-2">
+        <a href="main.html" class="mr-4">
+            <button id=""
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button">
+                Form
+            </button>
+        </a>
+    </nav>
+    <section class="dashboard bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mx-4">
+        <h1 class="flex justify-center text-3xl font-bold pb-4">User Information</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userData">
+            </tbody>
+        </table>
+    </section>
+
+    <div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-lg">
+            <h2 class="text-2xl font-bold mb-4">Edit User Information</h2>
+            <form id="editForm">
+                <div class="mb-4">
+                    <label for="editName" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="editName" name="editName"
+                        class="shadow appearance-none border rounded w-full text-sm py-1 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label for="editMobile" class="block text-sm font-medium text-gray-700">Mobile</label>
+                    <input type="tel" id="editMobile" name="editMobile" pattern="[0-9]{10}"
+                        title="Please enter a 10-digit number" required
+                        class="shadow appearance-none border rounded w-full text-sm py-1 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="editEmail" name="editEmail"
+                        class="shadow appearance-none border rounded w-full text-sm py-1 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
+                    <button type="submit" id="closeEditModal"
+                        class="ml-4 bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function updateTable() {
+            var userData = JSON.parse(localStorage.getItem('userData')) || [];
+            var userDataHTML = '';
+
+            userData.forEach(function (user, index) {
+                userDataHTML += '<tr>';
+                userDataHTML += '<td>' + user.name + '</td>';
+                userDataHTML += '<td>' + user.mobile + '</td>';
+                userDataHTML += '<td>' + user.email + '</td>';
+                userDataHTML += '<td class="actionButtons"><button class="updateButton actionButton" data-index="' + index + '">Update</button> <button class="deleteButton actionButton" data-index="' + index + '">Delete</button></td>';
+                userDataHTML += '</tr>';
+            });
+
+            document.getElementById('userData').innerHTML = userDataHTML;
+
+            var deleteButtons = document.getElementsByClassName('deleteButton');
+            Array.from(deleteButtons).forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var index = parseInt(button.getAttribute('data-index'));
+                    deleteUserInfo(index);
+                });
+            });
+
+            var updateButtons = document.getElementsByClassName('updateButton');
+            Array.from(updateButtons).forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var index = parseInt(button.getAttribute('data-index'));
+                    editUserInfo(index);
+                });
+            });
+        }
+
+        function deleteUserInfo(index) {
+            var userData = JSON.parse(localStorage.getItem('userData')) || [];
+            userData.splice(index, 1);
+            localStorage.setItem('userData', JSON.stringify(userData));
+            updateTable();
+        }
+
+        function editUserInfo(index) {
+            var userData = JSON.parse(localStorage.getItem('userData')) || [];
+            var user = userData[index];
+
+            document.getElementById('editName').value = user.name;
+            document.getElementById('editMobile').value = user.mobile;
+            document.getElementById('editEmail').value = user.email;
+
+            editModal.classList.remove('hidden');
+
+            editForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                userData[index] = {
+                    name: editForm.editName.value,
+                    mobile: editForm.editMobile.value,
+                    email: editForm.editEmail.value
+                };
+                localStorage.setItem('userData', JSON.stringify(userData));
+                updateTable();
+                editModal.classList.add('hidden');
+            });
+
+            closeEditModal.addEventListener('click', function () {
+                editModal.classList.add('hidden');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateTable();
+        });
+
+    </script>
+</body>
+
+</html>

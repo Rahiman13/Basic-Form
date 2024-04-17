@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <nav class=" text-right mt-2">
+        <a href="dash.html" class="mr-4">
+            <button id=""
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button">
+                Dashboard
+            </button>
+        </a>
+    </nav>
+    <div class="max-w-md mx-auto mt-8">
+        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h1 class="flex justify-center text-3xl font-bold pb-4">Form</h1>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="name" id="name_label">
+                    Name
+                </label>
+                <input
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="name" type="text" placeholder="Enter your name" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="tel" id="tel_label">
+                    Mobile
+                </label>
+                <input type="tel" id="tel" name="tel" placeholder="Enter your number" title="Please enter a 10-digit number" pattern="[0-9]{10}"
+                    required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700 text-sm font-bold mb-2" id="email_label">
+                    Email
+                </label>
+                <input id="email" type="email" name="email" placeholder="Enter your email" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="password" id="password_label">
+                    Password
+                </label>
+                <input
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                    id="password" type="password" placeholder="Enter your password" required>
+            </div>
+            <div class="flex items-center justify-between">
+                <button id="saveButton"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+        <script>
+            document.getElementById('saveButton').addEventListener('click', function () {
+                let name_label = document.getElementById('name_label');
+                let name = document.getElementById('name');
+                let tel_label = document.getElementById('tel_label');
+                let tel = document.getElementById('tel');
+                let email_label = document.getElementById('email_label');
+                let email = document.getElementById('email');
+                let password = document.getElementById('password');
+                let password_label = document.getElementById('password_label');
+
+                let userData = JSON.parse(localStorage.getItem('userData')) || [];
+
+                if (name.value == '') {
+                    name_label.innerHTML = 'Name is required';
+                    name_label.style.color = 'red';
+                    name.style.borderColor = 'red';
+                    return;
+                }
+                if (tel.value == '') {
+                    tel_label.innerHTML = 'Mobile number is required';
+                    tel_label.style.color = 'red';
+                    tel.style.borderColor = 'red';
+                    return;
+                }
+                if (email.value == '') {
+                    email_label.innerHTML = 'Email is required';
+                    email_label.style.color = 'red';
+                    email.style.borderColor = 'red';
+                    return;
+                }
+                if (password.value == '') {
+                    password_label.innerHTML = 'Password is required';
+                    password_label.style.color = 'red';
+                    password.style.borderColor = 'red';
+                    return;
+                }
+                userData.push({
+                    name: name.value,
+                    mobile: tel.value,
+                    email: email.value
+                });
+
+                localStorage.setItem('userData', JSON.stringify(userData));
+
+                alert('Data saved successfully!');
+                updateTable();
+                window.location.reload();
+            });
+
+            function updateTable() {
+                var userData = JSON.parse(localStorage.getItem('userData')) || [];
+                var userDataHTML = '';
+
+                userData.forEach(function (user, index) {
+                    userDataHTML += '<tr>';
+                    userDataHTML += '<td>' + user.name + '</td>';
+                    userDataHTML += '<td>' + user.mobile + '</td>';
+                    userDataHTML += '<td>' + user.email + '</td>';
+                    userDataHTML += '<td><button class="deleteButton" data-index="' + index + '">Delete</button></td>';
+                    userDataHTML += '</tr>';
+                });
+
+                document.getElementById('userData').innerHTML = userDataHTML;
+
+                var deleteButtons = document.getElementsByClassName('deleteButton');
+                Array.from(deleteButtons).forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        var index = parseInt(button.getAttribute('data-index'));
+                        deleteUserInfo(index);
+                    });
+                });
+            }
+
+
+
+            window.addEventListener('load', function () {
+                updateTable();
+            });
+
+        </script>
+    </div>
+
+</body>
+
+</html>
